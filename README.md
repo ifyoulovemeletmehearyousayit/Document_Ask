@@ -48,7 +48,7 @@
 
 ### ⚙️ ขั้นตอนการรันระบบ (Step-by-Step Guide)
 
-**1. เตรียมความพร้อมของ LLM (Ollama)**
+**1. เตรียมความพร้อมของ LLM**
 ก่อนเริ่มรันระบบ ต้องแน่ใจว่าเครื่องของคุณมีโมเดล AI สำหรับประมวลผลข้อความแล้ว
 * เปิด Terminal (หรือ Command Prompt) 
 * พิมพ์คำสั่งด้านล่างเพื่อดาวน์โหลดและรันโมเดล (ระบบจะโหลดไฟล์โมเดลในครั้งแรก)
@@ -56,20 +56,20 @@
 ollama run llama3.2
 ```
 
-**2. ดาวน์โหลดโค้ดโปรเจกต์
+**2. ดาวน์โหลดโค้ดโปรเจกต์**
 เปิด Terminal ตัวใหม่ แล้วดาวน์โหลดโค้ดลงมาที่เครื่องของคุณ
 ```bash
 git clone https://github.com/ifyoulovemeletmehearyousayit/Document_Ask.git
 cd Document_Ask
 ```
 
-**3. สตาร์ทระบบ Backend
+**3. สตาร์ทระบบ Backend**
 ระบบ Backend และ Database จะถูกจัดการผ่าน Docker Compose
 ```bash
 docker-compose up --build -d
 ```
 
-**4. ตั้งค่าและรัน Frontend
+**4. ตั้งค่าและรัน Frontend**
 เปิด Terminal ตัวใหม่ (อยู่ในโฟลเดอร์โปรเจกต์) สร้าง Virtual Environment และติดตั้งไลบรารีสำหรับ UI
 ```bash
 python -m venv venv
