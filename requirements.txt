@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+python-multipart
+numpy<2.0
+chromadb==0.4.24
+sentence-transformers
+ollama
+opencv-python-headless
+pytesseract
+PyPDF2
+pydantic
+requests
+streamlit

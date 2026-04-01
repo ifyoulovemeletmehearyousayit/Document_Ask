@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+data/raw/
+data/processed/
+data/chromadb/
+.DS_Store
+Thumbs.db
+mlruns/
+mlartifacts/
