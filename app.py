@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+
 import requests
 import streamlit as st
 
@@ -8,23 +9,20 @@ API_URL = os.getenv("API_URL", "http://localhost:8000")
 REQUEST_TIMEOUT = 600
 
 st.set_page_config(page_title="DocAsk", page_icon="⬛", layout="wide")
-
 st.markdown("""
     <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
+        #MainMenu, footer, header { visibility: hidden; }
         .stButton > button {
             border-radius: 4px;
-            border: 1px solid #333333;
+            border: 1px solid #333;
             transition: 0.3s;
         }
-        .stButton > button:hover {
-            border-color: #ffffff;
-            color: #ffffff;
-        }
+        .stButton > button:hover { border-color: #fff; color: #fff; }
     </style>
 """, unsafe_allow_html=True)
+
+
+# ─── helpers ───────────────────────────────────────────────────────────────────
 
 def fetch_documents() -> list[str]:
     try:
@@ -34,11 +32,17 @@ def fetch_documents() -> list[str]:
     except Exception:
         return []
 
+
+# ─── session state init ────────────────────────────────────────────────────────
+
 if "docs" not in st.session_state:
     st.session_state.docs = fetch_documents()
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
+
+
+# ─── sidebar ───────────────────────────────────────────────────────────────────
 
 with st.sidebar:
     st.title("⬛ Workspace")
@@ -46,15 +50,21 @@ with st.sidebar:
     st.divider()
 
     with st.expander("➕ Upload New Document", expanded=False):
-        uploaded_file = st.file_uploader("Select PDF or Image", type=["pdf", "png", "jpg", "jpeg"], label_visibility="collapsed")
-        
+        uploaded_file = st.file_uploader(
+            "Select PDF or Image",
+            type=["pdf", "png", "jpg", "jpeg"],
+            label_visibility="collapsed",
+        )
         if uploaded_file and st.button("Upload & Process", use_container_width=True):
             with st.spinner("Processing..."):
-                file_ext = uploaded_file.name.rsplit(".", 1)[-1].lower()
-                endpoint = "pdf" if file_ext == "pdf" else "image"
+                ext = uploaded_file.name.rsplit(".", 1)[-1].lower()
+                endpoint = "pdf" if ext == "pdf" else "image"
                 try:
-                    files = {"file": (uploaded_file.name, uploaded_file, "application/octet-stream")}
-                    res = requests.post(f"{API_URL}/upload/{endpoint}", files=files, timeout=REQUEST_TIMEOUT)
+                    res = requests.post(
+                        f"{API_URL}/upload/{endpoint}",
+                        files={"file": (uploaded_file.name, uploaded_file, "application/octet-stream")},
+                        timeout=REQUEST_TIMEOUT,
+                    )
                     if res.status_code == 200:
                         st.success("Uploaded!")
                         st.session_state.docs = fetch_documents()
@@ -83,11 +93,14 @@ with st.sidebar:
                 st.rerun()
 
     st.divider()
-    
+
     st.markdown("**Search Target**")
     source_options = ["All documents"] + docs
     selected_source = st.selectbox("Query from:", options=source_options, label_visibility="collapsed")
     source_filter = None if selected_source == "All documents" else selected_source
+
+
+# ─── main chat ─────────────────────────────────────────────────────────────────
 
 st.title("Document Ask")
 st.caption("Ask questions based on your uploaded context.")
@@ -113,19 +126,14 @@ if prompt := st.chat_input("Type your question here... (e.g. สรุปเน�
                 res = requests.post(f"{API_URL}/query", json=payload, timeout=REQUEST_TIMEOUT)
                 if res.status_code == 200:
                     data = res.json()
-                    answer = data["answer"]
-                    sources = data.get("sources", [])
-                    
+                    answer, sources = data["answer"], data.get("sources", [])
                     st.markdown(answer)
                     if sources:
                         st.caption(f"📎 **Sources:** {', '.join(sources)}")
-                    
-                    st.session_state.chat_history.append({
-                        "role": "assistant", 
-                        "content": answer, 
-                        "sources": sources
-                    })
+                    st.session_state.chat_history.append(
+                        {"role": "assistant", "content": answer, "sources": sources}
+                    )
                 else:
                     st.error("Error generating answer.")
             except Exception as exc:
-                st.error("Connection failed.")
+                st.error(f"Connection failed: {exc}")
